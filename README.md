@@ -43,19 +43,20 @@ dtoverlay=disable-bt
 ```
 
 ## Install PiHole
-To setup Pi Hole, from the command prompt (locally or remotely through SSH) use the following commands in sequence:
+To setup [Pi Hole](https://github.com/pi-hole/pi-hole/#one-step-automated-install), from the command prompt (locally or remotely through SSH) use the following commands in sequence:
 ```
 wget -O basic-install.sh https://install.pi-hole.net
 sudo bash basic-install.sh
 ```
 
+## Pi-hole tweaks
 ### Pi-hole as All-Around DNS Solution
 ```
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /var/lib/unbound/root.hints
 ```
 Then edit the file `/etc/unbound/unbound.conf.d/pi-hole.conf` as follow:
 ```
-erver:
+server:
     # If no logfile is specified, syslog is used
     # logfile: "/var/log/unbound/unbound.log"
     verbosity: 0
@@ -117,6 +118,13 @@ dig pi-hole.net @127.0.0.1 -p 5335
 Finally, configure Pi-hole to use your recursive DNS server by specifying 127.0.0.1#5335 as the Custom DNS (IPv4):
 ![RecursiveResolver](./img/RecursiveResolver.png)
 
+If you decide to setup Unbound, then make sure to disable caching and DNSSEC validation. You can disable DNSSEC using the Pi Hole admin dashboard (Settings -> DNS).
+In addition, it's necessary to disable caching. The cache size is set in `/etc/dnsmasq.d/01-pihole.conf`. However, note that this setting does not survive Pi-hole updates. If you want to change the cache size permanently, add a setting
+```
+CACHE_SIZE=12345
+```
+in `/etc/pihole/setupVars.conf` and run `pihole -r` (Repair) to get the cache size changed for you automatically.
+
 #### Add logging to unbound
 There are five levels of verbosity
 ```
@@ -144,3 +152,73 @@ Third, restart unbound:
 ```
 sudo service unbound restart
 ```
+
+### Log2RAM
+Install [Log2RAM](https://github.com/azlux/log2ram/blob/master/README.md) in order to reduce sd-card wear
+```
+echo "deb http://packages.azlux.fr/debian/ buster main" | sudo tee /etc/apt/sources.list.d/azlux.list
+wget -qO - https://azlux.fr/repo.gpg.key | sudo apt-key add -
+apt update
+apt install log2ram
+```
+For better performances, `RSYNC` is a recommended package.
+
+### How to make dns lookups faster
+```
+sudo nano /etc/unbound/unbound.conf
+```
+Insert the following lines:
+```
+# Just make sure your Raspberry Pi has enough memory for the cache-sizes mentioned, otherwise just reduce the numbers.
+prefetch: yes
+
+cache-min-ttl: 0
+
+serve-expired: yes
+
+msg-cache-size: 128m
+
+rrset-cache-size: 256m
+```
+
+### Others
+```
+sudo nano /etc/pihole/pihole-FTL.conf
+```
+Insert the following lines
+```
+#Make FTL only analyze A and AAAA queries (true or false)
+ANALYZE_ONLY_A_AND_AAAA=true
+
+#TTL (90-days) entries for FTL database (saves on space)
+MAXDBDAYS=90
+```
+#### _______________________________________________________________________________________________________________________________
+```
+sudo crontab -e
+```
+Insert the following lines:
+```
+#Updates Internic servers for unbound
+05 01 15 */3 * wget -O /var/lib/unbound/root.hints https://www.internic.net/domain/named.root
+
+#Restart unbound
+10 01 15 */3 * service unbound restart
+```
+#### _______________________________________________________________________________________________________________________________
+```
+sudo nano /etc/systemd/timesyncd.conf
+```
+Insert the following lines:
+```
+FallbackNTP=194.58.204.20 pool.ntp.org
+```
+
+### Useful lists
+- [Regex](https://github.com/mmotti/pihole-regex)
+- [Whitelist](https://github.com/anudeepND/whitelist)
+- [EasyList](https://github.com/0Zinc/easylists-for-pihole)
+- [Block List](https://firebog.net/)
+- [Block List 2](https://www.github.developerdan.com/hosts/)
+- [Other Lists](https://github.com/Perflyst/PiHoleBlocklist)
+- [Pihole Adlist Tool](https://github.com/yubiuser/pihole_adlist_tool)
