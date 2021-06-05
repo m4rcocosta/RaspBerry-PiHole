@@ -121,7 +121,7 @@ Finally, configure Pi-hole to use your recursive DNS server by specifying 127.0.
 If you decide to setup Unbound, then make sure to disable caching and DNSSEC validation. You can disable DNSSEC using the Pi Hole admin dashboard (Settings -> DNS).
 In addition, it's necessary to disable caching. The cache size is set in `/etc/dnsmasq.d/01-pihole.conf`. However, note that this setting does not survive Pi-hole updates. If you want to change the cache size permanently, add a setting
 ```
-CACHE_SIZE=12345
+CACHE_SIZE=0
 ```
 in `/etc/pihole/setupVars.conf` and run `pihole -r` (Repair) to get the cache size changed for you automatically.
 
