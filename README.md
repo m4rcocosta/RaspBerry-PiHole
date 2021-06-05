@@ -51,6 +51,7 @@ curl -sSL https://install.pi-hole.net | bash
 ## Pi-hole tweaks
 ### Pi-hole as All-Around DNS Solution
 ```
+sudo apt install unbound
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /var/lib/unbound/root.hints
 ```
 Then edit the file `/etc/unbound/unbound.conf.d/pi-hole.conf` as follow:
