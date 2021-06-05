@@ -34,7 +34,7 @@ sudo reboot
 ## Disable Bluetooth and WiFi
 
 ```
-sudo nano boot/config.txt
+sudo nano /boot/config.txt
 ```
 If you want to disable both wifi and bluetooth, you need to add these 2 lines :
 ```
