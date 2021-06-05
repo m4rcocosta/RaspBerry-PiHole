@@ -16,9 +16,9 @@ Replace “&lt;ROUTERIP&gt;” with the IP address that you retrieved in step 1 
 Finally, replace “&lt;DNSIP&gt;” with the IP of the domain name server you want to utilize. This is either the IP you got in step 2 of this tutorial or another one such as Googles “8.8.8.8” or Cloudflare’s “1.1.1.1“.
 ```
 interface <NETWORK>
-static ip_address=<STATICIP>/24
-static routers=<ROUTERIP>
-static domain_name_servers=<DNSIP>
+    static ip_address=<STATICIP>/24
+    static routers=<ROUTERIP>
+    static domain_name_servers=<DNSIP>
 ```
 Now that we have modified our Raspberry Pi’s DHCP configuration file so that we utilize a static IP address, we need to go ahead and restart the Raspberry Pi.
 
