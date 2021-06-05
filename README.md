@@ -14,7 +14,7 @@ Make sure you replace “&lt;STATICIP&gt;” with the IP address that you want t
 Replace “&lt;ROUTERIP&gt;” with the IP address that you retrieved in step 1 of this tutorial
 
 Finally, replace “&lt;DNSIP&gt;” with the IP of the domain name server you want to utilize. This is either the IP you got in step 2 of this tutorial or another one such as Googles “8.8.8.8” or Cloudflare’s “1.1.1.1“.
-```
+```yaml
 interface <NETWORK>
     static ip_address=<STATICIP>/24
     static routers=<ROUTERIP>
@@ -55,7 +55,7 @@ sudo apt install unbound
 wget https://www.internic.net/domain/named.root -qO- | sudo tee /var/lib/unbound/root.hints
 ```
 Then edit the file `/etc/unbound/unbound.conf.d/pi-hole.conf` as follow:
-```
+```yaml
 server:
     # If no logfile is specified, syslog is used
     # logfile: "/var/log/unbound/unbound.log"
@@ -136,7 +136,7 @@ Level 4 gives  algorithm  level  information
 Level 5 logs client identification for cache misses
 ```
 First, specify the log file and the verbosity level in the *server* part of `/etc/unbound/unbound.conf.d/pi-hole.conf`:
-```
+```yaml
 server:
     # If no logfile is specified, syslog is used
     logfile: "/var/log/unbound/unbound.log"
@@ -168,7 +168,7 @@ For better performances, `RSYNC` is a recommended package.
 sudo nano /etc/unbound/unbound.conf
 ```
 Insert the following lines:
-```
+```yaml
 # Just make sure your Raspberry Pi has enough memory for the cache-sizes mentioned, otherwise just reduce the numbers.
 prefetch: yes
 
@@ -186,7 +186,7 @@ rrset-cache-size: 256m
 sudo nano /etc/pihole/pihole-FTL.conf
 ```
 Insert the following lines
-```
+```yaml
 #Make FTL only analyze A and AAAA queries (true or false)
 ANALYZE_ONLY_A_AND_AAAA=true
 
@@ -198,7 +198,7 @@ MAXDBDAYS=90
 sudo crontab -e
 ```
 Insert the following lines:
-```
+```yaml
 #Updates Internic servers for unbound
 05 01 15 */3 * wget -O /var/lib/unbound/root.hints https://www.internic.net/domain/named.root
 
