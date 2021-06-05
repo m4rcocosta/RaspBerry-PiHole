@@ -45,8 +45,7 @@ dtoverlay=disable-bt
 ## Install PiHole
 To setup [Pi Hole](https://github.com/pi-hole/pi-hole/#one-step-automated-install), from the command prompt (locally or remotely through SSH) use the following commands in sequence:
 ```
-wget -O basic-install.sh https://install.pi-hole.net
-sudo bash basic-install.sh
+curl -sSL https://install.pi-hole.net | bash
 ```
 
 ## Pi-hole tweaks
