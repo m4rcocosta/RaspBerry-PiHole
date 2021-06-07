@@ -184,17 +184,16 @@ sudo reboot
 #check again if unbound works or not
 ```
 
-### Setup unbound with DoH
-Then edit the file `/etc/unbound/unbound.conf.d/pi-hole.conf` as follow:
+### Setup unbound with DoT
+Edit the file `/etc/unbound/unbound.conf.d/pi-hole.conf` as follow:
 ```yaml
 server:
     # If no logfile is specified, syslog is used
     logfile: "/var/log/unbound/unbound.log"
     verbosity: 2
 
-    interface: 127.0.0.1@5335
-    https-port: 5335
-#    port: 5335
+    interface: 127.0.0.1
+    port: 5335
     do-ip4: yes
     do-udp: yes
     do-tcp: yes
@@ -243,7 +242,73 @@ server:
     private-address: fe80::/10
 
     #DoT
-    #tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt
+    tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt
+
+forward-zone:
+    name: "."
+    forward-addr: 1.1.1.1@853#cloudflare-dns.com
+    forward-addr: 1.0.0.1@853#cloudflare-dns.com
+    forward-addr: 9.9.9.9@853#dns.quad9.net
+    forward-addr: 149.112.112.112@853#dns.quad9.net
+    forward-ssl-upstream: yes
+```
+
+### Setup unbound with DoH
+Edit the file `/etc/unbound/unbound.conf.d/pi-hole.conf` as follow:
+```yaml
+server:
+    # If no logfile is specified, syslog is used
+    logfile: "/var/log/unbound/unbound.log"
+    verbosity: 2
+
+    interface: 127.0.0.1@5335
+    https-port: 5335
+    do-ip4: yes
+    do-udp: yes
+    do-tcp: yes
+
+    # May be set to yes if you have IPv6 connectivity
+    do-ip6: no
+
+    # You want to leave this to no unless you have *native* IPv6. With 6to4 and
+    # Terredo tunnels your web browser should favor IPv4 for the same reasons
+    prefer-ip6: no
+    
+    # Use this only when you downloaded the list of primary root servers!
+    # If you use the default dns-root-data package, unbound will find it automatically
+    #root-hints: "/var/lib/unbound/root.hints"
+
+    # Trust glue only if it is within the server's authority
+    harden-glue: yes
+
+    # Require DNSSEC data for trust-anchored zones, if such data is absent, the zone becomes BOGUS
+    harden-dnssec-stripped: yes
+
+    # Don't use Capitalization randomization as it known to cause DNSSEC issues sometimes
+    # see https://discourse.pi-hole.net/t/unbound-stubby-or-dnscrypt-proxy/9378 for further details
+    use-caps-for-id: no
+
+    # Reduce EDNS reassembly buffer size.
+    # Suggested by the unbound man page to reduce fragmentation reassembly problems
+    edns-buffer-size: 1472
+
+    # Perform prefetching of close to expired message cache entries
+    # This only applies to domains that have been frequently queried
+    prefetch: yes
+
+    # One thread should be sufficient, can be increased on beefy machines. In reality for most users running on small networks or on a single machine, it should be unnecessary to seek performance enhancement by increasing num-threads above 1.
+    num-threads: 1
+
+    # Ensure kernel buffer is large enough to not lose messages in traffic spikes
+    so-rcvbuf: 1m
+
+    # Ensure privacy of local IP ranges
+    private-address: 192.168.0.0/16
+    private-address: 169.254.0.0/16
+    private-address: 172.16.0.0/12
+    private-address: 10.0.0.0/8
+    private-address: fd00::/8
+    private-address: fe80::/10
 
     #DoH
     tls-service-key: /etc/unbound/unbound_server.key
@@ -251,11 +316,6 @@ server:
 
 forward-zone:
     name: "."
-#    forward-addr: 1.1.1.1@853#cloudflare-dns.com
-#    forward-addr: 1.0.0.1@853#cloudflare-dns.com
-#    forward-addr: 9.9.9.9@853#dns.quad9.net
-#    forward-addr: 149.112.112.112@853#dns.quad9.net
-#    forward-ssl-upstream: yes
     forward-tls-upstream: yes
     forward-addr: 1.1.1.1@443#cloudflare-dns.com
     forward-addr: 1.0.0.1@443#cloudflare-dns.com
