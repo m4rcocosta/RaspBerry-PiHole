@@ -173,12 +173,12 @@ sudo service unbound start
 sudo /usr/sbin/unbound -ddd -vvv -c /etc/unbound/unbound.conf
 
 # Check if Unbound is working or not
-dig pi-hole.net @127.0.0.11 -p 5353
+dig pi-hole.net @127.0.0.1 -p 5335
 
 # Check unbound version
 unbound -v
 
-dig +short @127.0.0.11 -p 5353 chaos txt version.bind
+dig +short @127.0.0.1 -p 5335 chaos txt version.bind
 
 sudo reboot
 #check again if unbound works or not
@@ -197,7 +197,7 @@ For better performances, `RSYNC` is a recommended package.
 
 ### How to make dns lookups faster
 ```
-sudo nano /etc/unbound/unbound.conf
+sudo nano /etc/unbound/unbound.conf.d/pi-hole.conf
 ```
 Insert the following lines:
 ```yaml
